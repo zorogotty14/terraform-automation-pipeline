@@ -12,6 +12,8 @@ pipeline {
     SCRIPTS_DIR = "scripts"
   }
 
+  
+
   stages {
     stage('Checkout') {
       steps {
@@ -19,16 +21,21 @@ pipeline {
         checkout scm
       }
     }
+    stage('Test Windows Shell') {
+      steps {
+        bat 'echo Hello from Windows!'
+      }
+    }
 
     stage('Generate master.tfvars') {
       steps {
         dir("${env.TF_DIR}") {
           echo "Generating master.tfvars using Python script..."
-          sh """
-            python ../../${env.SCRIPTS_DIR}/generate_tfvars.py \
-              --cloud ${params.CLOUD} \
-              --region ${params.REGION} \
-              --release ${params.RELEASE} \
+          bat """
+            python ..\\..\\scripts\\generate_tfvars.py ^
+              --cloud ${params.CLOUD} ^
+              --region ${params.REGION} ^
+              --release ${params.RELEASE} ^
               --output master.tfvars
           """
         }
