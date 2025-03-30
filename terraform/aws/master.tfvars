@@ -1,0 +1,9 @@
+ami = "ami-9876265imo"
+instance_type = "t3.micro"
+instance_count = 3
+subnet_id = "subnet-abc45678"
+key_name = "my-keypair234452"
+company = "ggali"
+team = "dev"
+region = "us-west-1"
+instance_name = "cricket"
