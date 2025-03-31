@@ -25,7 +25,7 @@ def parse_properties_file(filepath):
 def validate_required_keys(data):
     missing = [key for key in REQUIRED_KEYS if key not in data]
     if missing:
-        print(f"❌ ERROR: Missing required keys in properties file: {', '.join(missing)}")
+        print(f"ERROR: Missing required keys in properties file: {', '.join(missing)}")
         sys.exit(1)
 
 def write_tfvars(data, output_path):
@@ -54,14 +54,14 @@ def main():
 
 
     if not input_file.exists():
-        print(f"❌ ERROR: Properties file not found at: {input_file}")
+        print(f"ERROR: Properties file not found at: {input_file}")
         sys.exit(1)
 
     props = parse_properties_file(input_file)
     validate_required_keys(props)
     write_tfvars(props, output_file)
 
-    print(f"✅ master.tfvars successfully created at: {output_file}")
+    print(f"master.tfvars successfully created at: {output_file}")
 
 if __name__ == "__main__":
     main()
