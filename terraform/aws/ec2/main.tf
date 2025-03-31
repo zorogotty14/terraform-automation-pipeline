@@ -1,3 +1,7 @@
+provider "aws" {
+  region = var.region
+}
+
 module "ec2_instances" {
   source         = "../../modules/aws/ec2"
   ami            = var.ami
