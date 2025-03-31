@@ -32,7 +32,7 @@ pipeline {
         dir("${env.TF_DIR}") {
           echo "Generating master.tfvars using Python script..."
           bat """
-            python ..\\..\\scripts\\generate_tfvars.py ^
+            python ..\\..\\..\\scripts\\generate_tfvars.py ^
               --cloud ${params.CLOUD} ^
               --region ${params.REGION} ^
               --release ${params.RELEASE} ^
