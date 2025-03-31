@@ -29,12 +29,11 @@ pipeline {
     stage('Generate master.tfvars') {
       steps {
         dir("${env.TF_DIR}") {
+          def masterTfvarsPath = "${env.WORKSPACE}\\terraform\\aws\\master.tfvars"
+          def oldTfvarsPath = "${env.WORKSPACE}\\terraform\\aws\\master.tfvars.old"
+
           echo "Checking for existing master.tfvars..."
-          bat '''
-            if exist master.tfvars (
-              copy master.tfvars master.tfvars.old
-            )
-          '''
+          bat "if exist \"${masterTfvarsPath}\" copy \"${masterTfvarsPath}\" \"${oldTfvarsPath}\""
 
           echo "Generating new master.tfvars..."
           bat """
@@ -46,16 +45,16 @@ pipeline {
           """
 
           echo "Contents of new master.tfvars:"
-          bat 'type master.tfvars'
+          bat "type \"${masterTfvarsPath}\""
 
           echo "Changes compared to previous version:"
-          bat '''
-            if exist master.tfvars.old (
-              fc master.tfvars.old master.tfvars
+          bat """
+            if exist \"${oldTfvarsPath}\" (
+              fc \"${oldTfvarsPath}\" \"${masterTfvarsPath}\"
             ) else (
               echo No previous version of master.tfvars found.
             )
-          '''
+          """
         }
       }
     }
