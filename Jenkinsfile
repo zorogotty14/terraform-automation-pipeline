@@ -70,7 +70,7 @@ pipeline {
           bat 'terraform init'
 
           echo "Running terraform plan..."
-          bat 'terraform plan -var-file=master.tfvars -out=tfplan.out > plan.log'
+          bat "terraform plan -var-file=\"${env.WORKSPACE}\\terraform\\aws\\master.tfvars\" -out=tfplan.out > plan.log"
 
           echo "Terraform Plan Output:"
           bat 'type plan.log'
