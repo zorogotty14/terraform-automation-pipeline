@@ -29,35 +29,38 @@ pipeline {
     stage('Generate master.tfvars') {
       steps {
         dir("${env.TF_DIR}") {
-          def masterTfvarsPath = "${env.WORKSPACE}\\terraform\\aws\\master.tfvars"
-          def oldTfvarsPath = "${env.WORKSPACE}\\terraform\\aws\\master.tfvars.old"
+          script {
+            def masterTfvarsPath = "${env.WORKSPACE}\\terraform\\aws\\master.tfvars"
+            def oldTfvarsPath = "${env.WORKSPACE}\\terraform\\aws\\master.tfvars.old"
 
-          echo "Checking for existing master.tfvars..."
-          bat "if exist \"${masterTfvarsPath}\" copy \"${masterTfvarsPath}\" \"${oldTfvarsPath}\""
+            echo "Checking for existing master.tfvars..."
+            bat "if exist \"${masterTfvarsPath}\" copy \"${masterTfvarsPath}\" \"${oldTfvarsPath}\""
 
-          echo "Generating new master.tfvars..."
-          bat """
-            python ..\\..\\..\\scripts\\generate_tfvars.py ^
-              --cloud ${params.CLOUD} ^
-              --region ${params.REGION} ^
-              --release ${params.RELEASE} ^
-              --output master.tfvars
-          """
+            echo "Generating new master.tfvars..."
+            bat """
+              python ..\\..\\..\\scripts\\generate_tfvars.py ^
+                --cloud ${params.CLOUD} ^
+                --region ${params.REGION} ^
+                --release ${params.RELEASE} ^
+                --output master.tfvars
+            """
 
-          echo "Contents of new master.tfvars:"
-          bat "type \"${masterTfvarsPath}\""
+            echo "Contents of new master.tfvars:"
+            bat "type \"${masterTfvarsPath}\""
 
-          echo "Changes compared to previous version:"
-          bat """
-            if exist \"${oldTfvarsPath}\" (
-              fc \"${oldTfvarsPath}\" \"${masterTfvarsPath}\"
-            ) else (
-              echo No previous version of master.tfvars found.
-            )
-          """
+            echo "Changes compared to previous version:"
+            bat """
+              if exist \"${oldTfvarsPath}\" (
+                fc \"${oldTfvarsPath}\" \"${masterTfvarsPath}\"
+              ) else (
+                echo No previous version of master.tfvars found.
+              )
+            """
+          }
         }
       }
     }
+
 
 
     stage('Terraform Init & Plan') {
