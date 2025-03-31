@@ -8,11 +8,9 @@ pipeline {
   }
 
   environment {
-    TF_DIR = "terraform/${params.CLOUD}/ec2"
+    TF_DIR = "terraform\\${params.CLOUD}\\ec2"
     SCRIPTS_DIR = "scripts"
   }
-
-  
 
   stages {
     stage('Checkout') {
@@ -21,16 +19,24 @@ pipeline {
         checkout scm
       }
     }
+
     stage('Test Windows Shell') {
       steps {
-        bat 'echo Hello from Windows!'
+        bat 'echo Hello from Windows shell!'
       }
     }
 
     stage('Generate master.tfvars') {
       steps {
         dir("${env.TF_DIR}") {
-          echo "Generating master.tfvars using Python script..."
+          echo "Checking for existing master.tfvars..."
+          bat '''
+            if exist master.tfvars (
+              copy master.tfvars master.tfvars.old
+            )
+          '''
+
+          echo "Generating new master.tfvars..."
           bat """
             python ..\\..\\..\\scripts\\generate_tfvars.py ^
               --cloud ${params.CLOUD} ^
@@ -38,18 +44,34 @@ pipeline {
               --release ${params.RELEASE} ^
               --output master.tfvars
           """
+
+          echo "Contents of new master.tfvars:"
+          bat 'type master.tfvars'
+
+          echo "Changes compared to previous version:"
+          bat '''
+            if exist master.tfvars.old (
+              fc master.tfvars.old master.tfvars
+            ) else (
+              echo No previous version of master.tfvars found.
+            )
+          '''
         }
       }
     }
+
 
     stage('Terraform Init & Plan') {
       steps {
         dir("${env.TF_DIR}") {
           echo "Running terraform init..."
-          sh 'terraform init'
+          bat 'terraform init'
 
           echo "Running terraform plan..."
-          sh 'terraform plan -var-file=master.tfvars -out=tfplan.out'
+          bat 'terraform plan -var-file=master.tfvars -out=tfplan.out > plan.log'
+
+          echo "Terraform Plan Output:"
+          bat 'type plan.log'
         }
       }
     }
@@ -59,7 +81,7 @@ pipeline {
         input message: "Apply the Terraform plan?", ok: "Apply"
         dir("${env.TF_DIR}") {
           echo "Applying Terraform plan..."
-          sh 'terraform apply tfplan.out'
+          bat 'terraform apply tfplan.out'
         }
       }
     }
